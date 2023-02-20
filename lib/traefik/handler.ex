@@ -1,6 +1,6 @@
 defmodule Traefik.Handler do
   @request """
-  GET /greetings HTTP/1.1
+  GET /about HTTP/1.1
   Accept: */*
   Connection: keep-alive
   User-Agent: HTTPie/3.2.1
@@ -36,6 +36,13 @@ defmodule Traefik.Handler do
     %{conn | response: "Up!", status: 200}
   end
 
+  def route(conn, "GET", "/about") do
+    Path.expand("../../pages", __DIR__)
+    |> Path.join("about.html")
+    |> File.read()
+    |> handle_file(conn)
+  end
+
   def route(conn, _method, path) do
     %{conn | response: "No #{path} found", status: 404}
   end
@@ -60,6 +67,11 @@ defmodule Traefik.Handler do
     }
     |> Map.get(code)
   end
+
+  def handle_file({:ok, content}, conn), do: %{conn | response: content, status: 200}
+
+  def handle_file({:error, reason}, conn),
+    do: %{conn | response: "File not found: #{reason}", status: 404}
 
   def info(conn), do: IO.inspect(conn, label: "Log")
 end
