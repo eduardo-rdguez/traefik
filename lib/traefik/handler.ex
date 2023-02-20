@@ -21,7 +21,7 @@ defmodule Traefik.Handler do
       |> List.first()
       |> String.split(" ")
 
-    %{method: method, path: path, response: ""}
+    %{method: method, path: path, response: "", status: ""}
   end
 
   def route(conn) do
@@ -29,15 +29,36 @@ defmodule Traefik.Handler do
   end
 
   def route(conn, "GET", "/greetings") do
-    %{conn | response: "Hello World!"}
+    %{conn | response: "Hello World!", status: 200}
   end
 
   def route(conn, "GET", "/status") do
-    %{conn | response: "Up!"}
+    %{conn | response: "Up!", status: 200}
+  end
+
+  def route(conn, _method, path) do
+    %{conn | response: "No #{path} found", status: 404}
   end
 
   def format_response(conn) do
-    @request <> "Content-Length: #{String.length(conn.response)}"
+    """
+    HTTP/1.1 #{conn.status} #{status_reason(conn.status)}
+    Host: some.com
+    User-Agent: telnet
+    Content-Length: #{String.length(conn.response)}
+    """
+  end
+
+  def status_reason(code) do
+    %{
+      200 => "OK",
+      201 => "Created",
+      401 => "Unauthorized",
+      403 => "Forbidden",
+      404 => "Not Found",
+      500 => "Internal Server Error"
+    }
+    |> Map.get(code)
   end
 
   def info(conn), do: IO.inspect(conn, label: "Log")
