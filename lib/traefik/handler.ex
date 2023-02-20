@@ -6,6 +6,8 @@ defmodule Traefik.Handler do
   User-Agent: HTTPie/3.2.1
   """
 
+  @pages_path Path.expand("../../pages", __DIR__)
+
   def handle do
     @request
     |> parse()
@@ -29,7 +31,7 @@ defmodule Traefik.Handler do
   end
 
   def route(%{method: "GET", path: "/about"} = conn) do
-    Path.expand("../../pages", __DIR__)
+    @pages_path
     |> Path.join("about.html")
     |> File.read()
     |> handle_file(conn)
