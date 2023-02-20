@@ -1,5 +1,6 @@
 defmodule Traefik.Handler do
   import Traefik.Parser, only: [parse: 1]
+  import Traefik.Plugs, only: [info: 1]
 
   @request """
   GET /about HTTP/1.1
@@ -58,6 +59,4 @@ defmodule Traefik.Handler do
 
   def handle_file({:error, reason}, conn),
     do: %{conn | response: "File not found: #{reason}", status: 404}
-
-  def info(conn), do: IO.inspect(conn, label: "Log")
 end
