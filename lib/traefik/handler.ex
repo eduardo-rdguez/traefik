@@ -1,4 +1,6 @@
 defmodule Traefik.Handler do
+  import Traefik.Parser, only: [parse: 1]
+
   @request """
   GET /about HTTP/1.1
   Accept: */*
@@ -14,16 +16,6 @@ defmodule Traefik.Handler do
     |> info()
     |> route()
     |> format_response()
-  end
-
-  def parse(request) do
-    [method, path, _protocol] =
-      request
-      |> String.split("\n")
-      |> List.first()
-      |> String.split(" ")
-
-    %{method: method, path: path, response: "", status: ""}
   end
 
   def route(%{method: "GET", path: "/greetings"} = conn) do
