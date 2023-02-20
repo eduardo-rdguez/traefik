@@ -2,6 +2,8 @@ defmodule Traefik.Handler do
   import Traefik.Parser, only: [parse: 1]
   import Traefik.Plugs, only: [info: 1]
 
+  alias Traefik.Conn
+
   @request """
   GET /about HTTP/1.1
   Accept: */*
@@ -19,44 +21,32 @@ defmodule Traefik.Handler do
     |> format_response()
   end
 
-  def route(%{method: "GET", path: "/greetings"} = conn) do
+  def route(%Conn{method: "GET", path: "/greetings"} = conn) do
     %{conn | response: "Hello World!", status: 200}
   end
 
-  def route(%{method: "GET", path: "/about"} = conn) do
+  def route(%Conn{method: "GET", path: "/about"} = conn) do
     @pages_path
     |> Path.join("about.html")
     |> File.read()
     |> handle_file(conn)
   end
 
-  def route(%{path: path} = conn) do
+  def route(%Conn{method: _method, path: path} = conn) do
     %{conn | response: "No #{path} found", status: 404}
   end
 
-  def format_response(conn) do
+  def format_response(%Conn{} = conn) do
     """
-    HTTP/1.1 #{conn.status} #{status_reason(conn.status)}
+    HTTP/1.1 #{Conn.status(conn)}
     Host: some.com
     User-Agent: telnet
     Content-Length: #{String.length(conn.response)}
     """
   end
 
-  def status_reason(code) do
-    %{
-      200 => "OK",
-      201 => "Created",
-      401 => "Unauthorized",
-      403 => "Forbidden",
-      404 => "Not Found",
-      500 => "Internal Server Error"
-    }
-    |> Map.get(code)
-  end
+  def handle_file({:ok, content}, %Conn{} = conn), do: %{conn | response: content, status: 200}
 
-  def handle_file({:ok, content}, conn), do: %{conn | response: content, status: 200}
-
-  def handle_file({:error, reason}, conn),
+  def handle_file({:error, reason}, %Conn{} = conn),
     do: %{conn | response: "File not found: #{reason}", status: 404}
 end

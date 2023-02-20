@@ -1,4 +1,6 @@
 defmodule Traefik.Parser do
+  alias Traefik.Conn
+
   def parse(request) do
     [method, path, _protocol] =
       request
@@ -6,6 +8,6 @@ defmodule Traefik.Parser do
       |> List.first()
       |> String.split(" ")
 
-    %{method: method, path: path, response: "", status: ""}
+    %Conn{method: method, path: path, response: "", status: ""}
   end
 end

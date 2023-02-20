@@ -1,3 +1,5 @@
 defmodule Traefik.Plugs do
-  def info(conn), do: IO.inspect(conn, label: "Log")
+  alias Traefik.Conn
+
+  def info(%Conn{} = conn), do: IO.inspect(conn, label: "Log")
 end
