@@ -9,6 +9,7 @@ defmodule Traefik.Handler do
   def handle do
     @request
     |> parse()
+    |> info()
     |> route()
     |> format_response()
   end
@@ -38,4 +39,6 @@ defmodule Traefik.Handler do
   def format_response(conn) do
     @request <> "Content-Length: #{String.length(conn.response)}"
   end
+
+  def info(conn), do: IO.inspect(conn, label: "Log")
 end
