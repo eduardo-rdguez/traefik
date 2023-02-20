@@ -1,14 +1,16 @@
 defmodule Traefik.Handler do
   @request """
-    GET / HTTP/1.1
-    Accept: */*
-    Connection: keep-alive
-    User-Agent: HTTPie/3.2.1
+  GET / HTTP/1.1
+  Accept: */*
+  Connection: keep-alive
+  User-Agent: HTTPie/3.2.1
   """
 
   def handle do
     @request
     |> parse()
+    |> route()
+    |> format_response()
   end
 
   def parse(request) do
@@ -19,5 +21,13 @@ defmodule Traefik.Handler do
       |> String.split(" ")
 
     %{method: method, path: path, response: ""}
+  end
+
+  def route(conn) do
+    %{conn | response: "Hello World!"}
+  end
+
+  def format_response(conn) do
+    @request <> "Content-Length: #{String.length(conn.response)}"
   end
 end
