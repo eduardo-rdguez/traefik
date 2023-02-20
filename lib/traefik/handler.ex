@@ -1,6 +1,6 @@
 defmodule Traefik.Handler do
   @request """
-  GET / HTTP/1.1
+  GET /greetings HTTP/1.1
   Accept: */*
   Connection: keep-alive
   User-Agent: HTTPie/3.2.1
@@ -24,7 +24,15 @@ defmodule Traefik.Handler do
   end
 
   def route(conn) do
+    %{conn | response: "Traefik App!"}
+  end
+
+  def route(conn, "GET", "/greetings") do
     %{conn | response: "Hello World!"}
+  end
+
+  def route(conn, "GET", "/status") do
+    %{conn | response: "Up!"}
   end
 
   def format_response(conn) do
