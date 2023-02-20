@@ -24,26 +24,18 @@ defmodule Traefik.Handler do
     %{method: method, path: path, response: "", status: ""}
   end
 
-  def route(conn) do
-    %{conn | response: "Traefik App!"}
-  end
-
-  def route(conn, "GET", "/greetings") do
+  def route(%{method: "GET", path: "/greetings"} = conn) do
     %{conn | response: "Hello World!", status: 200}
   end
 
-  def route(conn, "GET", "/status") do
-    %{conn | response: "Up!", status: 200}
-  end
-
-  def route(conn, "GET", "/about") do
+  def route(%{method: "GET", path: "/about"} = conn) do
     Path.expand("../../pages", __DIR__)
     |> Path.join("about.html")
     |> File.read()
     |> handle_file(conn)
   end
 
-  def route(conn, _method, path) do
+  def route(%{path: path} = conn) do
     %{conn | response: "No #{path} found", status: 404}
   end
 
